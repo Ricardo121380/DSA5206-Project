@@ -4,15 +4,23 @@
 \usepackage{parskip} % Package to tweak paragraph skipping
 \usepackage{tikz} % Package for drawing
 \usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{dutchcal}
 \usepackage{hyperref}
 \usepackage{minted}
 \usepackage{pythonhighlight}
 \usepackage{cite}
 \usepackage{bm}
+\usepackage{minted}
+\usepackage{pythonhighlight}
 
 \usepackage{caption}
-\usepackage[dvipsnames]{xcolor} % 更全的色系
+%\usepackage[dvipsnames]{xcolor} % 更全的色系
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+%\setmainfont{Arial}
+%\setmainfont{TeX Gyre Termes}
 
 \bibliographystyle{plain}
 
@@ -45,18 +53,61 @@ h_2(t)
 \]
 The leading dynamic mode of the system is determined by the eigenvalues and eigenvectors of the system matrix. The matrix is diagonal, so the dynamic modes correspond to the eigenvalues and eigenvectors of this matrix, which are readily identifiable from the matrix itself. The system matrix has eigenvalues $-1$ and $-10$, with corresponding eigenvectors $[1,0]^T$ and $[0,1]^T$.\\
 
-Since Dynamic Mode Decomposition (DMD) identifies modes associated with dominant behaviors, the leading dynamic mode in this case corresponds to the eigenvalue with the smallest magnitude in absolute terms (less negative), which is $-1$. The corresponding eigenvector is $[1,0]^T$. This vector $[1,0]^T$ in $R^2 $ represents the leading dynamic mode.\\
+Since Dynamic Mode Decomposition (DMD) identifies modes associated with dominant behaviors, the leading dynamic mode in this case corresponds to the eigenvalue with the smallest magnitude in absolute terms (less negative), which is $-1$. The corresponding eigenvector is $[1,0]^T$. This vector $[1,0]$ in $ \mathbb{R}^2 $ represents the leading dynamic mode.\\
 
 \subsection*{(b)}
+The following code is to discretize the system dynamics, simulate the trajectories, and compute the leading spatial POD mode.
+\begin{minted}{python}
+# Constants and parameters for simulation
+dt = 1e-3  # Time step
+total_time = 1  # Total time of simulation
+num_steps = int(total_time / dt)  # Number of time steps
+num_trajectories = 1000  # Number of trajectories
 
+# Initial conditions
+h_initial = np.zeros((2, 1))
 
+# Discrete-time system matrix
+A_discrete = np.eye(2) + A * dt
+B_discrete = np.array([[1e-3], [1e3]]) * dt
 
+# To store all trajectories
+all_trajectories = np.zeros((2, num_steps, num_trajectories))
 
+# Simulate the system
+np.random.seed(42)  # for reproducibility
+for j in range(num_trajectories):
+    h = h_initial.copy()
+    for i in range(num_steps):
+        x_t = np.random.normal(0, 1)  # Sample x(t)
+        h = A_discrete @ h + B_discrete * x_t  # Euler integration step
+        all_trajectories[:, i, j] = h.squeeze()
 
+# Perform POD via time-averaging across all trajectories
+# Flatten trajectories into a matrix of 2 x (num_steps*num_trajectories)
+data_matrix = all_trajectories.reshape(2, -1)  
+covariance_matrix = np.cov(data_matrix)  # Compute the covariance matrix
+# Eigen-decomposition
+pod_eigenvalues, pod_eigenvectors = np.linalg.eig(covariance_matrix)  
 
+# Sort eigenvectors based on eigenvalues in descending order
+sorted_indices = np.argsort(-pod_eigenvalues)
+leading_pod_mode = pod_eigenvectors[:, sorted_indices[0]]
 
+print(pod_eigenvalues, pod_eigenvectors, leading_pod_mode)
+\end{minted}
+After simulating the system and performing Proper Orthogonal Decomposition (POD) on the generated dataset, we found the leading spatial POD mode to be approximately $[-1.763 \times 10^{-6},-1]$. This vector represents the direction along which the variance of the data is maximized, hence it's the dominant spatial structure in the data set.
 
 \subsection*{(c)}
+For Dynamic Mode Decomposition (DMD): \\
+The leading DMD mode we found was $[1,0]$, associated with the system's slower decay rate (eigenvalue $-1$). This mode essentially captures the dynamics of $h_1(t)$ independent of $h_2(t)$. Using this for dimensionality reduction would imply focusing solely on the $h_1(t)$ component while ignoring $h_2(t)$.\\
+
+For Proper Orthogonal Decomposition (POD): \\
+The leading POD mode is $[-1.763 \times 10^{-6},-1]$ , which suggests that $h_2(t)$ has much greater variability and is more influential in the dataset generated. Reducing the system to this mode would focus primarily on $h_2(t)$ dynamics, which are more sensitive to the input $x(t)$ due to the large coefficient in $B$.\\
+
+In conclusion, Using the leading DMD mode for reduction might ignore significant input-driven dynamics present in $h_2(t)$. On the other hand, using the leading POD mode captures more of the input effect but might miss simpler decay behaviors of $h_1(t)$. \\
+Hence, the choice depends on the specific goals of the analysis or control task: whether we prioritize capturing the most energy/variance (POD) or focusing on specific dynamic features (DMD).
+
 
 
 
