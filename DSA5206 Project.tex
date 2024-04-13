@@ -1,0 +1,71 @@
+\documentclass[12pt]{article}
+
+\usepackage{fullpage} % Package to use full page
+\usepackage{parskip} % Package to tweak paragraph skipping
+\usepackage{tikz} % Package for drawing
+\usepackage{amsmath}
+\usepackage{dutchcal}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{pythonhighlight}
+\usepackage{cite}
+\usepackage{bm}
+
+\usepackage{caption}
+\usepackage[dvipsnames]{xcolor} % 更全的色系
+
+\bibliographystyle{plain}
+
+\title{The Project of DSA5206: Advanced Topics in Data Science}
+\author{Huang Rui}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Part1}
+\subsection*{(a)}
+When $x(t)=0$, the system equation $(1.1)$ simplifies to a homogeneous linear system:
+\[
+\frac{d}{dt}
+\begin{pmatrix}
+h_1(t) \\
+h_2(t)
+\end{pmatrix}
+=
+\begin{pmatrix}
+-1 & 0 \\
+0 & -10
+\end{pmatrix}
+\begin{pmatrix}
+h_1(t) \\
+h_2(t)
+\end{pmatrix}
+\]
+The leading dynamic mode of the system is determined by the eigenvalues and eigenvectors of the system matrix. The matrix is diagonal, so the dynamic modes correspond to the eigenvalues and eigenvectors of this matrix, which are readily identifiable from the matrix itself. The system matrix has eigenvalues $-1$ and $-10$, with corresponding eigenvectors $[1,0]^T$ and $[0,1]^T$.\\
+
+Since Dynamic Mode Decomposition (DMD) identifies modes associated with dominant behaviors, the leading dynamic mode in this case corresponds to the eigenvalue with the smallest magnitude in absolute terms (less negative), which is $-1$. The corresponding eigenvector is $[1,0]^T$. This vector $[1,0]^T$ in $R^2 $ represents the leading dynamic mode.\\
+
+\subsection*{(b)}
+
+
+
+
+
+
+
+
+\subsection*{(c)}
+
+
+
+\section*{Part2}
+\subsection*{(a)}
+
+
+\subsection*{(b)}
+
+\subsection*{(c)}
+
+\end{document}
