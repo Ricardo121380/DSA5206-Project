@@ -106,17 +106,222 @@ For Proper Orthogonal Decomposition (POD): \\
 The leading POD mode is $[-1.763 \times 10^{-6},-1]$ , which suggests that $h_2(t)$ has much greater variability and is more influential in the dataset generated. Reducing the system to this mode would focus primarily on $h_2(t)$ dynamics, which are more sensitive to the input $x(t)$ due to the large coefficient in $B$.\\
 
 In conclusion, Using the leading DMD mode for reduction might ignore significant input-driven dynamics present in $h_2(t)$. On the other hand, using the leading POD mode captures more of the input effect but might miss simpler decay behaviors of $h_1(t)$. \\
-Hence, the choice depends on the specific goals of the analysis or control task: whether we prioritize capturing the most energy/variance (POD) or focusing on specific dynamic features (DMD).
+Hence, the choice depends on the specific goals of the analysis or control task: whether we prioritize capturing the most energy variance (POD) or focusing on specific dynamic features (DMD).
+
+\subsection*{(d)}
+The state-transition matrix for a linear time-invariant (LTI) system is given by $e^{At}$, which is the matrix exponential of $A$. The solution to the state equation at time $t$, assuming zero initial conditions for simplicity, is given by:
+\[
+h(t) = \int_{0}^{t} e^{A(t-\tau)} Bx(\tau) \, d\tau
+\]
+To prove controllability, we need to show that it is possible to transfer the state $h(t)$ from the origin to any final state $h_f$ in finite time using an appropriate control input $x(t)$.\\
+
+For a given time interval $[0,T]$, the controllability Gramian is defined as:
+\[
+W_c(T) = \int_{0}^{T} e^{A\tau} BB^T e^{A^T\tau} \, d\tau
+\]
+If $W_c(T)$ is invertible (has full rank), then the system is controllable on $[0,T]$.\\
+
+The columns of the controllability matrix $R$ span the same space as the columns of $W_c(T)$ as $T\rightarrow \infty$. This is because the higher powers of $A$ in the expansion of the matrix exponential $e^{A\tau}$ will span the same subspace as the lower powers of $A$ due to the Cayley-Hamilton theorem, which states that $A_k$ for $k\geq m$ can be expressed as a linear combination of $I,A,A^2,\dots,A^{m-1}$.\\
+
+If $R$ has full rank, this implies that the states that can be reached from the origin within infinite time span the entire state space $\mathbb{R}^m$. Specifically, any state $h_f$ can be written as a linear combination of the columns of $R$, meaning there exists a control sequence $x(t)$ that will transfer the state $h(0)$ to $h_f$ in finite time.\\
+
+Thus, if the controllability matrix $R$ has full column rank $m$, then for any $h_f \in \mathbb{R}^m$, there exists a control input $x(t)$ such that:
+\[
+h_f = \int_{0}^{T} e^{A(T-\tau)} Bx(\tau) \, d\tau
+\]
+This concludes that the system is controllable on $[0,T]$ for any $T>0$, and by extension, for any finite time interval.
+
+\subsection*{(e)}
+To prove $W_c(t)$ is \textbf{symmetric}:\\
+By the properties of the transpose operation and the fact that the matrix exponential is always defined, we have:
+\[
+\left( e^{A\tau} BB^T e^{A^T\tau} \right)^T = \left( e^{A^T\tau} \right)^T (BB^T)^T \left( e^{A\tau} \right)^T = e^{A\tau} BB^T e^{A^T\tau}
+\]
+which shows that the integrand is symmetric for each $\tau$ since $(BB^T)^T=BB^T$. Since the integral of symmetric matrices is also symmetric, $W_c(t)$ is symmetric.\\
+
+To prove $W_c(t)$ is \textbf{positive definite}:\\
+We need to show that for any non-zero vector $z \in \mathbb{R}^m$, the following condition holds:
+\[
+z^TW_c(t)z>0
+\]
+Let's evaluate the quadratic form $z^TW_c(t)z$:
+\[
+z^T W_c(t) z = \int_{0}^{t} z^T e^{A\tau} BB^T e^{A^T\tau} z \, d\tau
+\]
+Let $ $, so $ $, and we can rewrite the integral as:
+\[
+\int_{0}^{t} v(\tau)^T BB^T v(\tau) \, d\tau
+\]
+Now, $BB^T$ is positive semi-definite (as it is a Gram matrix). Therefore, $v(\tau)^TBB^Tv(\tau)\geq 0$ for all $\tau$. Since $z \neq 0$ and assuming that $R$ has full column rank $m$, there is always some $\tau$ for which $v(\tau)\neq 0$ (since $e^{A\tau}$ is invertible and does not map any non-zero vector to the zero vector). This implies that the integrand is strictly positive for some $\tau$ in the range $[0,t]$, and therefore the integral is strictly positive:
+\[
+z^TW_c(t)z>0
+\]
+Hence, $W_c(t)$ is positive definite for any non-zero $z$ and for any $t>0$.
+
+\subsection*{(f)}
+We need to show that with the input $x_*(t)$, the state $h(t_*)$ will be equal to $h_\star$.\\
+Given the control input \( x_*(t) \), let's compute the state \( h(t) \) at time \( t = t_* \), using the state-transition equation:
+\[
+h(t) = e^{A t} h(0) + \int_{0}^{t} e^{A(t-\tau)} Bx(\tau) \, d\tau
+\]
+Since we want the system to start at the origin, let's set \( h(0) = 0 \), which simplifies the equation to:
+\[
+h(t) = \int_{0}^{t} e^{A(t-\tau)} Bx(\tau) \, d\tau
+\]
+Now we substitute \( x(\tau) \) with \( x_*(\tau) \):
+\[
+h(t) = \int_{0}^{t} e^{A(t-\tau)} BB^T e^{A^T(t_*-\tau)} W_c(t_*)^{-1} h_*(\tau) \, d\tau
+\]
+Let's change the variable of integration from \( \tau \) to \( \sigma = t_* - \tau \), which changes \( d\tau \) to \( -d\sigma \):
+\[
+h(t) = - \int_{t_*}^{t_*-t} e^{A(t_*-\sigma)} BB^T e^{A^T\sigma} W_c(t_*)^{-1} h_*(\sigma) \, d\sigma
+\]
+As \( t \) approaches \( t_* \), the limits of the integral become \( t_* \) to 0, and we take the negative sign into account:
+\[
+h(t_*) = \int_{0}^{t_*} e^{A(t_*-\sigma)} BB^T e^{A^T\sigma} W_c(t_*)^{-1} h_*(\sigma) \, d\sigma
+\]
+The integral we have now is the definition of the controllability Gramian at \( t_* \):
+\[
+h(t_*) = W_c(t_*) W_c(t_*)^{-1} h_*
+\]
+Thus, we have shown that the state at time \( t_* \) is the desired final state \( h_* \), assuming that the control input \( x_*(t) \) is applied.
+
+\subsection*{(g)}
+The energy \( E \) of the input is the integral of the square of the Euclidean norm of \( x_*(s) \) over the interval from \( 0 \) to \( t_* \):
+\[
+E = \int_{0}^{t_*} | x_*(s) |^2 \, ds = \int_{0}^{t_*} x_*(s)^T x_*(s) \, ds
+\]
+Substitute \( x_*(s) \) with its definition:
+\[
+E = \int_{0}^{t_*} (B^T e^{A^T(t_*-s)} W_c(t_*)^{-1} h_k)^T (B^T e^{A^T(t_*-s)} W_c(t_*)^{-1} h_k) \, ds
+\]
+Then:
+\[
+E = \int_{0}^{t_*} h_k^T (W_c(t_*)^{-1})^T e^{A(t_*-s)} BB^T e^{A^T(t_*-s)} W_c(t_*)^{-1} h_k \, ds
+\]
+Since \( W_c(t_*) \) is symmetric, \( (W_c(t_*)^{-1})^T = W_c(t_*)^{-1} \), and we can simplify further:
+\[
+E = h_k^T W_c(t_*)^{-1} \left( \int_{0}^{t_*} e^{A(t_*-s)} BB^T e^{A^T(t_*-s)} \, ds \right) W_c(t_*)^{-1} h_k
+\]
+Recognizing the expression within the integral as the definition of the controllability Gramian \( W_c(t_*) \):
+\[
+E = h_k^T W_c(t_*)^{-1} W_c(t_*) W_c(t_*)^{-1} h_k
+\]
+Therefore:
+\[
+E = h_k^T W_c(t_*) h_k
+\]
+This shows that the energy \( E \) needed to transfer the state from \( 0 \) to \( h_k \) in time \( t_* \) using the control input \( x_*(t) \) is \( h_k^T W_c(t_*) h_k \).
+
+\subsection*{(h)}
+the controllability Gramian $W_c(t)$ for the system at time $t=1$ is given by the integral:
+\[
+W_c(t) = \int_{0}^{t} e^{A\tau} BB^T e^{A^T\tau} \, d\tau
+\]
+To compute $W_c(1)$ numerically, we can discretize the integral and sum up the contributions from each time step. After we compute $W_c(1)$, we can calculate its eigenvalues.\\
+The following is the code for computing:\\
+\begin{minted}{python}
+import numpy as np
+from scipy.linalg import expm, eigvals
+
+# Define the system matrices
+A = np.array([[-1, 0],
+              [0, -10]])
+B = np.array([[1e-3],
+              [1e3]])
+
+# Time at which to compute the Gramian
+t = 1
+
+# Discretization parameters
+num_steps = 1000
+delta_t = t / num_steps
+Wc = np.zeros((2, 2))
+
+for step in range(num_steps):
+    tau = step * delta_t
+    Wc += expm(A * tau) @ B @ B.T @ expm(A.T * tau) * delta_t
+
+# Compute the eigenvalues of the controllability Gramian
+eigenvalues = eigvals(Wc)
+
+print(Wc)
+print(eigenvalues)
+\end{minted}
+The controllability Gramian $W_c(t)$ for the system at time $t=1$ is approximately:
+\[
+W_c(1) \approx \begin{pmatrix}
+4.32764835 \times 10^{-7} & 9.14084809 \times 10^{-2} \\
+9.14084809 \times 10^{-2} & 5.05016666 \times 10^{4}
+\end{pmatrix}
+\]
+And the eigenvalues of the controllability Gramian are approximately:
+\[
+\begin{split}
+\lambda_1 \approx&2.67311407 \times 10^{-7} \\
+\lambda_2 \approx&5.05016666 \times 10^4    
+\end{split}
+\]
+
+\subsection*{(i)}
+With the transformation, we can first compute the $\Tilde{A}$ and $\Tilde{B}$. After that, use the new $\Tilde{A}$ and $\Tilde{B}$ to compute $\Tilde{W}_c(1)$.\\
+Here is the code for computing:
+\begin{minted}{python}
+# Define the transformation matrix T
+T = np.array([[1e3, 0],
+              [0, 1e-3]])
+
+# Compute the new A and B matrices for the transformed system
+A_tilde = T @ A @ np.linalg.inv(T)
+B_tilde = T @ B
+
+# Compute the controllability Gramian for the transformed system
+Wc_tilde = np.zeros((2, 2))
+
+for step in range(num_steps):
+    tau = step * delta_t
+    Wc_tilde += expm(A_tilde * tau) @ B_tilde @ B_tilde.T 
+                @ expm(A_tilde.T * tau) * delta_t
+
+# Compute the eigenvalues of the controllability Gramian
+eigenvalues_tilde = eigvals(Wc_tilde)
+
+Wc_tilde, eigenvalues_tilde
+\end{minted}
+The controllability Gramian $\Tilde{W}_c(t)$ for the system at time $t=1$ is approximately:
+\[
+\Tilde{W}_c(1) \approx \begin{pmatrix}
+0.43276483 & 0.09140848 \\
+0.09140848 & 0.05050167
+\end{pmatrix}
+\]
+And the eigenvalues of the controllability Gramian are approximately:
+\[
+\begin{split}
+\Tilde{\lambda}_1 \approx& 0.45349829 \\
+\Tilde{\lambda}_2 \approx& 0.02976822  
+\end{split}
+\]
+Observation:\\
+\textbf{Gramian Symmetry}: The Gramian remains symmetric, which is consistent with the theory since the Gramian should always be symmetric due to the properties of the state-transition matrix $e^{At}$ and the input matrix $B$.\\
+
+\textbf{Value of controllability Gramian}: The transformed Gramian $\Tilde{W}_c(1)$ occurs to be the $TW_c(1)T^T$, whcih is the same as the transformation of the matrix $A$.\\
+
+\textbf{Impact of Transformation}: The transformation does not change the system's controllability. Controllability is an invariant property under a change of basis (which is what the transformation $T$ is doing). However, the magnitudes of the eigenvalues can change, which influences the "energy" needed to control the system in the new basis.\\
+
+\textbf{Scale of the System}: The transformation $T$ has significantly rescaled the state-space. This changes the numerical values of the Gramian and can change the difficulty of controlling the system due to numerical properties like conditioning.
 
 
-
-
+\newpage
 \section*{Part2}
-\subsection*{(a)}
+\subsection*{1.Introduction}
 
 
-\subsection*{(b)}
+\subsection*{2.Methods}
 
-\subsection*{(c)}
+\subsection*{3.Results}
 
+\subsection*{4.Conclusion}
+
+\subsection*{5.References}
 \end{document}
