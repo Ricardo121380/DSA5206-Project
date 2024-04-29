@@ -315,13 +315,91 @@ Observation:\\
 \newpage
 \section*{Part2}
 \subsection*{1.Introduction}
+About the problem:\\
+In the evolving landscape of economic forecasting, the ability to accurately predict commodity prices is paramount for businesses, consumers, and policymakers. This report focuses on forecasting the prices of tortillas across various states in Mexico, a staple food item with significant economic and cultural importance. The goal is to develop a predictive model that provides reliable price forecasts, helping stakeholders make informed decisions in planning, budgeting, and policy-making.\cite{syerramilli2023}\\
 
+About the dataset:\\
+The dataset used in this analysis comprises monthly records of tortilla prices per kilogram across different states in Mexico, spanning several years. Each entry in the dataset includes three key pieces of information:
+\begin{itemize}
+\item \textbf{State:} The Mexican state where the price was recorded.
+\item \textbf{Year-Month:} The year and month when the price was recorded, providing a temporal dimension to the dataset.
+\item \textbf{Price per Kilogram:} The price of tortillas per kilogram in Mexican pesos, serving as the target variable for our forecasts.
+\end{itemize}
 
 \subsection*{2.Methods}
+We use the following two methods to analyze the dataset:\\
+\textbf{1.Dimensionality Reduction via PCA}: Given the multivariate nature of the data (prices across several states), Principal Component Analysis (PCA) is used to reduce dimensionality. This technique transforms the original correlated variables into a smaller number of uncorrelated variables, capturing the most significant information (variance) in the dataset.\\
+
+\textbf{2.Vector Autoregression (VAR) Modeling}: The dimension-reduced dataset is then analyzed using a Vector Autoregression (VAR) model. This model is well-suited for multivariate time series data, capturing the linear interdependencies among multiple time series.\\
+
+This combination of PCA and VAR provides a robust methodological framework for forecasting, effectively capturing the dynamics across multiple series and enhancing the predictive accuracy by focusing on the most informative aspects of the data.
 
 \subsection*{3.Results}
+In the part of PCA:\\
+The primary objective of using PCA in this study was to reduce the dimensionality of the dataset while retaining as much variance (information) as possible. This is crucial for simplifying the modeling process without significantly compromising the data's integrity.\\
+By applying PCA, we transformed the original variables (state prices) into a new set of variables (principal components) that are linear combinations of the original variables. These new variables are orthogonal, eliminating multicollinearity, and are ordered so that the first few retain most of the variation present in all of the original variables.\\
+The PCA retained 99\% of the variance with fewer components than the original number of states, thereby simplifying the subsequent analysis significantly. This reduction not only helped in focusing on the most significant information but also reduced the noise and improved the efficiency of the VAR model.\\
+After applying the PCA, we can get the new dataset like this:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{PCA.png}
+    \caption*{Dimension Reduced Dataset}
+\end{figure}
+which will be used in the following part of VAR model training.\\
+
+In the part of VAR:\\
+The goal of employing a VAR model was to capture the relationships and dynamics across the multiple time series represented by the principal components from PCA, thereby forecasting future values effectively.\\
+
+We split the dataset into two parts, one is the train set used to train the model, another is the test set to evaluate the performance of the model.\\
+After using the train set to train the model, we can get this outcome:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{VAR summary.png}
+    \caption*{VAR Summary}
+\end{figure}
+However, we need to transform the principal components dataset back to the original dataset. After the transformation, we can get the predicted data like this:\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Forecast.png}
+    \caption*{Predicted Price per Kilogram}
+\end{figure}
+To evaluate the performance of this model, we can display the performance metrics, such as MAE, MSE and RMSE. The performance metrics are as following:
+\begin{itemize}
+    \item \textbf{MAE}: 2.743260393884601
+    \item \textbf{MSE}: 10.399427076313355
+    \item \textbf{RMSE}: 3.224814270049262
+\end{itemize}
+
+To evaluate the performance of the model, we can visualize the outcomes. Since there are so many states, we can select some important ones:\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Visualization for some states.png}
+    \caption*{Predicted Prices for Selected States}
+\end{figure}
+To make a clearer evaluation, we can compare the predicted with the true values. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Comparison.png}
+    \caption*{Comparison between Predicted and True}
+\end{figure}
 
 \subsection*{4.Conclusion}
+For the part of PCA, we successfully reduce the dimension from 32 to 3, is crucial for simplifying the modeling process without significantly compromising the data's integrity. Besides, the PCA retained 99\% of the variance with fewer components than the original number of states, which is significant for the training part.\\
 
-\subsection*{5.References}
+In the part of VAR, we can make conclusions from two parts.\\
+The first one is the performance matrix:\\
+\textbf{Mean Absolute Error (MAE)}: The MAE of 2.743 means that, on average, the forecasted prices are approximately 2.743 units away from the actual prices. Given the units are in the price per kilogram, this deviation represents the average magnitude of errors in the predictions without considering their direction. An MAE closer to 0 indicates better performance. In economic terms, an MAE of this size might be considered acceptable, depending on the pricing scale and variability inherent to the dataset.\\
+
+\textbf{Mean Squared Error (MSE)}: An MSE of 10.399 indicates the average squared difference between the estimated values and the actual value. The squaring of errors penalizes larger discrepancies more severely than smaller ones. A lower MSE is better, as it suggests less variability in the forecast errors. The relatively moderate MSE in our case suggests that while the model is generally reliable, there may be occasional forecasts that are significantly off from the true prices.\\
+
+\textbf{Root Mean Squared Error (RMSE)}: The RMSE value of 3.225, being the square root of the MSE, is particularly informative as it returns the units to the original price per kilogram, making it directly interpretable. It suggests that most of the model's forecasts fall within approximately 3.225 units of the actual prices. This is beneficial for understanding the model's accuracy in the same units as the data.\\
+
+To sum up, the performance metrics (MAE, MSE, RMSE) validate the visual observations, with the model achieving a reasonable degree of accuracy, which, while not perfect, provides a reliable basis for understanding price movements and making informed decisions.\\
+
+The second one is the visualization:\\
+Even though we think the model is of great accuracy from the performance matrix, we find it still need to be improved from the comparison.\\
+From the comparison we obtain that the predicted ones closely track the actual ones. However, after 2021-1, the difference enlarges significantly, especially in the state of "Baja California".\\
+Therefore, there are a lot needed to be improved: regularly updating the model with the latest data will help capture more recent trends, potentially improving the accuracy of forecasts. Besides, for areas where predictions diverge significantly from actual prices, a deeper analysis is recommended to uncover the reasons behind these discrepancies and to understand whether these are one-off events or part of a new trend.
+
+\bibliography{bibliography}
 \end{document}
